@@ -2,38 +2,41 @@
 #include "usart.h"		
 #include "delay.h"	
 #include "timer.h" 
-//ALIENTEK Mini STM32¿ª·¢°å·¶Àı´úÂë8
-//PWMÊä³öÊµÑé   
-//¼¼ÊõÖ§³Ö£ºwww.openedv.com
-//¹ãÖİÊĞĞÇÒíµç×Ó¿Æ¼¼ÓĞÏŞ¹«Ë¾
+//ALIENTEK Mini STM32å¼€å‘æ¿èŒƒä¾‹ä»£ç 8
+//PWMè¾“å‡ºå®éªŒ   
+//æŠ€æœ¯æ”¯æŒï¼šwww.openedv.com
+//å¹¿å·å¸‚æ˜Ÿç¿¼ç”µå­ç§‘æŠ€æœ‰é™å…¬å¸
 
 int main(void)
-{			
-// 	u16 pwmval=0;    
-	int ang=0; u8 len,serial_num=1;
+{			   
+	int ang[6]={0}; u8 len,t;
 	
-	Stm32_Clock_Init(9); //ÏµÍ³Ê±ÖÓÉèÖÃ
-	delay_init(72);	     //ÑÓÊ±³õÊ¼»¯
-	uart_init(72,9600);  //´®¿Ú³õÊ¼»¯ 
-	TIM2_3_PWM_Init(2000-1,720-1);//PWMÆµÂÊ100k ÖÜÆÚ20ms
+	Stm32_Clock_Init(9); //ç³»ç»Ÿæ—¶é’Ÿè®¾ç½®
+	delay_init(72);	     //å»¶æ—¶åˆå§‹åŒ–
+	uart_init(72,9600);  //ä¸²å£åˆå§‹åŒ– 
+	TIM2_3_PWM_Init(2000-1,720-1);//PWMé¢‘ç‡100k å‘¨æœŸ20ms åˆå§‹åŒ–èˆµè§’å½’é›¶
 	delay_ms(1000);
-	Rds_Control(0,5);
-
+	
+	//ä¸²å£è·å–6è·¯èˆµè§’,æ§åˆ¶èˆµæœºå¹¶æ‰“å°å¯¹åº”çš„èˆµè§’å’Œæ¥æ”¶çš„æ•°æ®é•¿åº¦(å­—èŠ‚)
 	while(1)
 	{
 		if(USART_RX_STA&0X8000)
 		{	
-			len = USART_RX_STA&0X3FFF;			//µÃµ½´Ë´Î½ÓÊÕÊı¾İµÄ³¤¶È
-			ang = USART_RX_BUF[1] + USART_RX_BUF[2]*16;
-			serial_num = USART_RX_BUF[0];
-			Rds_Control(ang,5);
-			printf("len %d num %d ang %d",len,serial_num,ang);
-			printf("\r\n\r\n");						//²åÈë»»ĞĞ
+			len = USART_RX_STA&0X3FFF;			//å¾—åˆ°æ­¤æ¬¡æ¥æ”¶æ•°æ®çš„é•¿åº¦
+			for(t=0;t<len;t++)
+			{
+				printf(" %d ",USART_RX_BUF[t]);
+				ang[t] = USART_RX_BUF[t];
+				Rds_Control(ang[t],t+1);
+			}
+			printf("len %d",len);
+			printf("\r\n\r\n");						//æ’å…¥æ¢è¡Œ
 			USART_RX_STA = 0;
 		}
 		else delay_ms(10);
 	}
 
 }
+
 
 
